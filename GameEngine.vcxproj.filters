@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Fichiers sources">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Fichiers de ressources">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Fichiers sources\Components">
+      <UniqueIdentifier>{eda7a025-3880-40cf-a1ba-a7e951438cc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Entitys">
+      <UniqueIdentifier>{f8337d2a-6483-4500-ac99-1e07222cd634}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête\Entitys">
+      <UniqueIdentifier>{39459212-6439-4d6f-acaa-cf53c81bb1ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête\Components">
+      <UniqueIdentifier>{53489e2b-2794-4977-ae3f-246f21a8facd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="myEventListener.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="main_ogre.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MyGame.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>Fichiers sources\Entitys</Filter>
+    </ClCompile>
+    <ClCompile Include="Component.cpp">
+      <Filter>Fichiers sources\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteComponent.cpp">
+      <Filter>Fichiers sources\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="PositionComponent.cpp">
+      <Filter>Fichiers sources\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="MooveComponent.cpp">
+      <Filter>Fichiers sources\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationComponent.cpp">
+      <Filter>Fichiers sources\Components</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="myEventListener.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="MyGame.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.hpp">
+      <Filter>Fichiers d%27en-tête\Entitys</Filter>
+    </ClInclude>
+    <ClInclude Include="Component.hpp">
+      <Filter>Fichiers d%27en-tête\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteComponent.hpp">
+      <Filter>Fichiers d%27en-tête\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="PositionComponent.hpp">
+      <Filter>Fichiers d%27en-tête\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="MooveComponent.hpp">
+      <Filter>Fichiers d%27en-tête\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationComponent.hpp">
+      <Filter>Fichiers d%27en-tête\Components</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
