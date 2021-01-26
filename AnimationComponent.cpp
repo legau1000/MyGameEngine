@@ -1,13 +1,8 @@
 #include "AnimationComponent.hpp"
-#include "../ogre/OgreMain/include/OgreCompositionPass.h"
 
 AnimationComponent::AnimationComponent(const std::string& name, std::string attack, std::string idle, std::string mouve)
 	: Component(MyComponentEnum::Animation), _name(name), _attack(attack), _idle(idle), _mouve(mouve), _animation(0)
 {
-	std::cout << _name << std::endl;
-	std::cout << _attack << std::endl;
-	std::cout << _idle << std::endl;
-	std::cout << _mouve << std::endl;
 	_animation = 0;
 }
 
@@ -23,7 +18,6 @@ const std::string AnimationComponent::getName()
 
 std::string AnimationComponent::getAnimation()
 {
-	std::cout << _animation << std::endl;
 	if (_animation == 0) {
 		return (_idle);
 	}

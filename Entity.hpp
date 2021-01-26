@@ -9,6 +9,9 @@ enum MyComponentEnum
     Position,
     Sprite,
     Cam,
+    Scale,
+    Orientation,
+    Wall,
     Event,
     Moove,
     Turn,
@@ -16,8 +19,9 @@ enum MyComponentEnum
     Shoot,
     Sound,
     Animation,
+    Empty,
     First = Collider,
-    Last = Animation
+    Last = Empty
 };
 
 class Entity
