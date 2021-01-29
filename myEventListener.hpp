@@ -7,6 +7,7 @@
 #include <btBulletCollisionCommon.h>
 #include "Component.hpp"
 #include "AnimationComponent.hpp"
+#include "SoundManager.hpp"
 using namespace std;
 class myEventListener : public Ogre::FrameListener, public OIS::KeyListener, public OIS::MouseListener
 {
@@ -14,7 +15,7 @@ public:
 	myEventListener(Ogre::Camera*, Ogre::RenderWindow*,
 		Ogre::SceneManager*, vector<shared_ptr<Component>>,
 		const std::string&, Ogre::Plane* mPlane,
-		btDiscreteDynamicsWorld* dynamicsWorld, std::shared_ptr<std::vector<btRigidBody*>> walls);
+		btDiscreteDynamicsWorld* dynamicsWorld, std::shared_ptr<SoundManager> soundManager);
 	~myEventListener();
 
 	bool frameEnded(const Ogre::FrameEvent& evt);
@@ -22,10 +23,22 @@ public:
 	bool frameRenderingQueued(const Ogre::FrameEvent& evt);
 
 	bool keyPressed(const OIS::KeyEvent& e) { return(true); };
-	bool keyReleased(const OIS::KeyEvent& e) { return(true); };
+	bool keyReleased(const OIS::KeyEvent& e)
+	{
+		if (e.key == OIS::KC_P) {
+			std::cout << this->_soundManager->CheckPlayed("BackMusic") << std::endl;
+			if (this->_soundManager->CheckPlayed("BackMusic")) {
+				this->_soundManager->StopSound("BackMusic");
+			}
+			else {
+				this->_soundManager->PlaySound("BackMusic", true);
+			}
+		}
+		return (true);
+	};
 
 	bool mouseMoved(const OIS::MouseEvent& me);
-	bool mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id) { return(true); };
+	bool mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id);
 	bool mouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID id) { return(true); };
 
 private:
@@ -55,7 +68,7 @@ private:
 	
 	btDiscreteDynamicsWorld* _dynamicsWorld;
 
-	std::shared_ptr<std::vector<btRigidBody*>> _walls;
-
 	btRigidBody* _me;
+
+	std::shared_ptr<SoundManager> _soundManager;
 };

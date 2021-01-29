@@ -7,6 +7,8 @@
 #include "WallComponent.hpp"
 #include "ColliderComponent.hpp"
 #include "ScaleComponent.hpp"
+#include "IAComponent.hpp"
+#include "OrientationComponent.hpp"
 
 GameEngine::GameEngine(const std::string &name)
 	: OgreBites::ApplicationContext(name)
@@ -18,7 +20,7 @@ GameEngine::GameEngine(const std::string &name)
 	_cam = nullptr;
 	_window = nullptr;
 	dynamicsWorld = nullptr;
-	_walls = std::make_shared<std::vector<btRigidBody*>>();
+	_soundManager = std::make_shared<SoundManager>();
 }
 
 GameEngine::~GameEngine()
@@ -75,7 +77,7 @@ void GameEngine::initGround()
 	Ogre::SceneNode* node = _scnMgr->getRootSceneNode()->createChildSceneNode("sol");
 	node->attachObject(ent);
 	ent->setMaterialName("Examples/GrassFloor");
-	
+	/**/
 	// Physics
 	btTransform groundTransform;
 	groundTransform.setIdentity();
@@ -144,7 +146,7 @@ void GameEngine::createEntity(std::shared_ptr<Entity> newEntity)
 		this->makePosition(newEntity);
 	}
 	if (newEntity->getType(MyComponentEnum::Collider) == true) {
-		this->makeCollider(newEntity, 0.1f);
+		this->makeCollider(newEntity, 0.5f);
 	}
 	if (newEntity->getType(MyComponentEnum::IA) == true) { // make IA
 		//this->makeIA(newEntity);
@@ -182,9 +184,9 @@ void GameEngine::createPlayer(std::shared_ptr<Entity> entity)
 
 // [Start Engine Components]
 
-void GameEngine::createComponentSprite(const std::string name, const std::string mesh)
+void GameEngine::createComponentSprite(const std::string name, const std::string mesh, const std::string material)
 {
-	_components[MyComponentEnum::Sprite].push_back(std::make_pair(name, std::make_shared<SpriteComponent>(name, mesh)));
+	_components[MyComponentEnum::Sprite].push_back(std::make_pair(name, std::make_shared<SpriteComponent>(name, mesh, material)));
 }
 
 void GameEngine::createComponentPosition(const std::string name, float x, float y, float z)
@@ -217,6 +219,17 @@ void GameEngine::createComponentScale(const std::string name, float x, float y, 
 	_components[MyComponentEnum::Scale].push_back(std::make_pair(name, std::make_shared<ScaleComponent>(name, x, y, z)));
 }
 
+void GameEngine::createComponentIA(const std::string name, std::vector<int> startPos, std::vector<int> endPos)
+{
+	_components[MyComponentEnum::IA].push_back(std::make_pair(name, std::make_shared<IAComponent>(name, startPos, endPos)));
+}
+
+void GameEngine::createComponentOrientation(const std::string name, float degree)
+{
+	std::cout << "Orientation: " << name << std::endl;
+	_components[MyComponentEnum::Orientation].push_back(std::make_pair(name, std::make_shared<OrientationComponent>(name, degree)));
+}
+
 // [End Engine Components]
 
 shared_ptr<Component> GameEngine::getComponent(MyComponentEnum value, const std::string& name)
@@ -245,8 +258,11 @@ void GameEngine::makePosition(std::shared_ptr<Entity> entity)
 		Ogre::Entity* ent = _scnMgr->createEntity(entity->getName(), sprite->getMesh());
 		Ogre::SceneNode* node = _scnMgr->getRootSceneNode()->createChildSceneNode(entity->getName());
 
+		if (sprite->getMaterial() != "")
+			ent->setMaterialName(sprite->getMaterial());
+
 		node->_updateBounds();
-		node->showBoundingBox(true);
+		//node->showBoundingBox(true);
 
 		node->attachObject(ent);
 
@@ -254,8 +270,14 @@ void GameEngine::makePosition(std::shared_ptr<Entity> entity)
 		if (componentScale == nullptr)
 			return;
 		ScaleComponent* scale = static_cast<ScaleComponent*>(componentScale.get());
-
 		node->setScale(scale->x, scale->y, scale->z);
+
+		shared_ptr<Component> componentDegree = this->getComponent(MyComponentEnum::Orientation, entity->getName());
+		if (componentDegree != nullptr) {
+			OrientationComponent* degree = static_cast<OrientationComponent*>(componentDegree.get());
+			std::cout << entity->getName() << "degre: " << degree->_degree << std::endl;
+			node->yaw(Ogre::Degree(degree->_degree));
+		}
 
 		shared_ptr<Component> componentPosition = this->getComponent(MyComponentEnum::Position, entity->getName());
 		if (componentPosition == nullptr)
@@ -266,7 +288,7 @@ void GameEngine::makePosition(std::shared_ptr<Entity> entity)
 		ent->setCastShadows(true);
 	}
 }
-
+/*
 void GameEngine::makeWall(std::shared_ptr<Entity> entity)
 {
 	if (entity->getType(MyComponentEnum::Sprite) == true) {
@@ -296,7 +318,7 @@ void GameEngine::makeWall(std::shared_ptr<Entity> entity)
 		ent->setCastShadows(true);
 	}
 }
-
+*/
 void GameEngine::makeEvents(std::shared_ptr<Entity> entity)
 {
 	shared_ptr<Component> componentSprite = nullptr;
@@ -325,20 +347,17 @@ void GameEngine::makeEvents(std::shared_ptr<Entity> entity)
 	if (entity->getType(MyComponentEnum::Collider) == true) {
 		componentSprite = this->getComponent(MyComponentEnum::Collider, entity->getName());
 		if (componentSprite != nullptr) {
-			std::cout << "found collider" << std::endl;
 			componentForEvent.push_back(componentSprite);
 		}
 		componentSprite = nullptr;
 	}
-	myListener = make_shared<myEventListener>(_cam, _window, _scnMgr, componentForEvent, entity->getName(), _mPlane, dynamicsWorld, _walls);
-	std::cout << "Before adding value Frame listener" << std::endl;
+	myListener = make_shared<myEventListener>(_cam, _window, _scnMgr, componentForEvent, entity->getName(), _mPlane, dynamicsWorld, _soundManager);
 	getRoot()->addFrameListener(myListener.get());
-	std::cout << "After adding value Frame listener" << std::endl;
 }
 
 void GameEngine::makeCollider(std::shared_ptr<Entity> entity, float Entitymass)
 {
-	std::cout << "COLLIDER FOR: " << entity->getName() << std::endl;
+	// std::cout << "COLLIDER FOR: " << entity->getName() << std::endl;
 	Ogre::SceneNode* node = _scnMgr->getSceneNode(entity->getName());
 	node->_updateBounds();
 	const Ogre::AxisAlignedBox& b = node->_getWorldAABB();
@@ -372,7 +391,7 @@ void GameEngine::makeCollider(std::shared_ptr<Entity> entity, float Entitymass)
 	btScalar mass = Entitymass;
 	//set the mass of the object. a mass of "0" means that it is an immovable object
 	btVector3 localInertia(0, 0, 0);
-	if (entity->getName().find("Cube") != std::string::npos) // maybe make  mass class
+	if (entity->getName().find("Wall") != std::string::npos) // maybe make  mass class
 		mass = 0.0f;
 	if (mass != 0.f)
 		colShape->calculateLocalInertia(mass, localInertia);
@@ -400,7 +419,7 @@ void GameEngine::makeCollider(std::shared_ptr<Entity> entity, float Entitymass)
 	//physicsEngine->trackRigidBodyWithName(body, physicsCubeName);
 	collisionShapes.push_back(colShape);
 	dynamicsWorld->addRigidBody(body);
-	std::cout << "END COLLIDER FOR: " << entity->getName() << std::endl;
+	// std::cout << "END COLLIDER FOR: " << entity->getName() << std::endl;
 }
 
 // [End Components generators]

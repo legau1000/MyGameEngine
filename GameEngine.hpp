@@ -3,13 +3,16 @@
 #include <iostream>
 #include <memory>
 #include <iostream>
+// Ogre
 #include <Ogre.h>
 #include <Bites/OgreApplicationContext.h>
 #include <RTShaderSystem/OgreShaderGenerator.h>
 #include <btBulletDynamicsCommon.h>
 #include <btBulletCollisionCommon.h>
+// my own include
 #include "Entity.hpp"
 #include "Component.hpp"
+#include "SoundManager.hpp"
 #include "myEventListener.hpp"
 
 using namespace std;
@@ -23,13 +26,15 @@ public:
     void createPlayer(std::shared_ptr<Entity>);
     void createEntity(std::shared_ptr<Entity>);
 
-    void createComponentSprite(const std::string name, const std::string mesh);
+    void createComponentSprite(const std::string name, const std::string mesh, const std::string material = "");
     void createComponentPosition(const std::string name, float, float, float);
     void createComponentMoove(const std::string name, int speed);
     void createComponentAnimation(const std::string name, std::string, std::string, std::string);
     void createComponentWall(const std::string name, float);
     void createComponentCollider(const std::string name);
     void createComponentScale(const std::string name, float, float, float);
+    void createComponentIA(const std::string name, std::vector<int> startPos, std::vector<int> endPos);
+    void createComponentOrientation(const std::string name, float degree);
 
 private:
     void setConfigFile();
@@ -45,7 +50,7 @@ private:
     
     void makePosition(std::shared_ptr<Entity>);
     void makeEvents(std::shared_ptr<Entity>);
-    void makeWall(std::shared_ptr<Entity>);
+    //void makeWall(std::shared_ptr<Entity>);
     void makeCollider(std::shared_ptr<Entity>, float);
     
     // end Component generators
@@ -77,6 +82,5 @@ private:
 
     btAlignedObjectArray<btCollisionShape*> collisionShapes;
 
-    std::shared_ptr<std::vector<btRigidBody*>> _walls;
-
+    std::shared_ptr<SoundManager> _soundManager;
 };

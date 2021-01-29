@@ -6,10 +6,11 @@
 myEventListener::myEventListener(Ogre::Camera* cam, Ogre::RenderWindow* renderWindow, 
 	Ogre::SceneManager* scnMgr, vector<shared_ptr<Component>> componentsForEvent, 
 	const std::string& name, Ogre::Plane* mPlane, 
-	btDiscreteDynamicsWorld* dynamicsWorld, std::shared_ptr<std::vector<btRigidBody*>> walls)
+	btDiscreteDynamicsWorld* dynamicsWorld, std::shared_ptr<SoundManager> soundManager)
 {
 	_mPlane = mPlane;
 	_name = name;
+	_soundManager = soundManager;
 	if (componentsForEvent.size() == 0) {
 		return;
 	}
@@ -32,12 +33,10 @@ myEventListener::myEventListener(Ogre::Camera* cam, Ogre::RenderWindow* renderWi
 	MooveComponent* moove = nullptr;
 	_animation = nullptr;
 	ColliderComponent* collider = nullptr;
-	_walls = walls;
 
 	if (dynamicsWorld != nullptr)
 		_dynamicsWorld = dynamicsWorld;
 	while (index < componentsForEvent.size()) {
-		std::cout << "size = " << componentsForEvent.size() << " ; index = " << index << std::endl;
 		switch (componentsForEvent[index]->getType())
 		{
 		case MyComponentEnum::Collider:
@@ -69,7 +68,6 @@ myEventListener::myEventListener(Ogre::Camera* cam, Ogre::RenderWindow* renderWi
 		index++;
 	}
 	_cam = cam;
-	//_mVitesseRotation = 0.2;
 	_scnMgr = scnMgr;
 }
 
@@ -112,19 +110,19 @@ void myEventListener::makeMouve(const Ogre::FrameEvent& evt)
 		//_scnMgr->getSceneNode(_name)->translate(0.0, 0.0, mMouvement);
 	}
 
-	btVector3 mouve((float)deplacement.x, 0.0f, (float)deplacement.z);
-	btVector3 push;
-
-	btTransform trans;
-	_me->getMotionState()->getWorldTransform(trans);
-	btQuaternion orientation = trans.getRotation();
-	push = quatRotate(orientation, mouve);
-	push.setY(0.0f);
-	_me->activate();
-	_me->applyCentralForce(mouve);
-
 	if (deplacement != Ogre::Vector3::ZERO)
 	{
+		btVector3 mouve((float)deplacement.x, 0.0f, (float)deplacement.z);
+		btVector3 push;
+
+		btTransform trans;
+		_me->getMotionState()->getWorldTransform(trans);
+		btQuaternion orientation = trans.getRotation();
+		push = quatRotate(orientation, mouve);
+		push.setY(0.0f);
+		_me->activate();
+		_me->applyCentralForce(mouve);
+
 		eventDone = true;
 	}
 	if (eventDone && _animation) {
@@ -172,42 +170,11 @@ bool myEventListener::frameStarted(const Ogre::FrameEvent& evt)
 								std::cout << "collision entre: " << node->getName() << " && " << node2->getName() << std::endl;
 								std::cout << "------------------------------------------------------------------" << std::endl;
 							}
-							
-							//std::cout << "Contact point: " << k << std::endl;
-							//std::cout << "With force: " << pt.getAppliedImpulse() << std::endl;
 						}
 					}
 				}
-
 			}
-		}/*
-		_dynamicsWorld->stepSimulation(1.0f / 60.0f); //suppose you have 60 frames per second
-		for (int i = 0; i < _dynamicsWorld->getNumCollisionObjects(); i++) {
-			btCollisionObject* obj = _dynamicsWorld->getCollisionObjectArray()[i];
-			btRigidBody* body = btRigidBody::upcast(obj);
-
-			if (body && body->getMotionState()) {
-				btTransform trans;
-				body->getMotionState()->getWorldTransform(trans);
-				void* userPointer = body->getUserPointer();
-				
-				if (userPointer == _scnMgr->getSceneNode(_name)) {
-					std::cout << "Collision Player" << std::endl;
-					//btQuaternion orientation = trans.getRotation();
-					//Ogre::SceneNode* sceneNode = static_cast<Ogre::SceneNode*>(userPointer);
-					//sceneNode->setPosition(Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
-					//sceneNode->setOrientation(Ogre::Quaternion(orientation.getW(), orientation.getX(), orientation.getY(), orientation.getZ()));
-				}
-			}
-		}*/
-		/*std::cout << _walls->size() << std::endl;
-		for (int i = 0; i < _walls->size(); i++) {
-			btRigidBody* obj = _walls->at(i);
-			std::cout << _me->checkCollideWith(obj) << std::endl;
-			if (_me->checkCollideWith(obj))
-				std::cout << " find collision" << std::endl;
-
-		}*/
+		}
 		this->update();
 	}
 	return true;
@@ -229,6 +196,11 @@ void myEventListener::update()
 
 		_me->getMotionState()->getWorldTransform(trans);
 		orientation = trans.getRotation();
+
+		// Without gravity
+		// _scnMgr->getSceneNode(_name)->setPosition(Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
+
+		// With gravity
 		_scnMgr->getSceneNode(_name)->setPosition(Ogre::Vector3(trans.getOrigin().getX(), 0.0f, trans.getOrigin().getZ()));
 
 		Ogre::Vector3 playerPost = _scnMgr->getSceneNode(_name)->getPosition();
@@ -239,6 +211,11 @@ void myEventListener::update()
 
 bool myEventListener::frameEnded(const Ogre::FrameEvent& evt)
 {
+	float mMouvement = 20 * evt.timeSinceLastFrame;
+	Ogre::Vector3 IAOne = _scnMgr->getSceneNode("IA-1")->getPosition();
+	_scnMgr->getSceneNode("IA-1")->setPosition(Ogre::Vector3(IAOne.x - mMouvement, 10, IAOne.z));
+	Ogre::Vector3 IATwo = _scnMgr->getSceneNode("IA-2")->getPosition();
+	_scnMgr->getSceneNode("IA-2")->setPosition(Ogre::Vector3(IATwo.x + mMouvement, 10, IATwo.z));
 	/*bool eventDone = false;
 	if (mKeyboard->isKeyDown(OIS::KC_ESCAPE))
 		return false;
@@ -296,6 +273,29 @@ bool myEventListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
 	if (mKeyboard)
 		mKeyboard->capture();
 	return (true);
+}
+
+bool myEventListener::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
+{
+	if (id == 0) {
+		_soundManager->StopSound("Shoot");
+		_soundManager->PlaySound("Shoot", false);
+		Ogre::Viewport* vp = _scnMgr->getCurrentViewport();
+		Ogre::Real x = me.state.X.abs / float(me.state.width);
+		Ogre::Real y = me.state.Y.abs / float(me.state.height);
+		Ogre::Ray mouseRay = _cam->getCameraToViewportRay(x, y);
+
+		std::pair<bool, Ogre::Real> result = mouseRay.intersects(*_mPlane);
+
+		if (result.first) {
+
+			Ogre::Vector3 point = mouseRay.getPoint(result.second);
+			point.y = 0;
+
+			std::cout << point << std::endl;
+		}
+	}
+	return(true);
 }
 
 bool myEventListener::mouseMoved(const OIS::MouseEvent& me)

@@ -16,8 +16,8 @@ public:
 
 private:
     void createPlayer(std::string name);
-    void createWall(std::string name, std::vector<int>, float orientation);
-    void createBloc(std::string name, std::vector<int> pos);
+    void createBloc(std::string name, std::vector<int> pos, std::vector<float> scale);
+    void createIA(std::string name, std::vector<int> startPos, std::vector<int> endPos, float orientation);
 
     GameEngine* _gameEngine;
     std::unordered_map<std::string, std::shared_ptr<Entity>> _entity;
