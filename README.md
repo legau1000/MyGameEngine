@@ -16,6 +16,8 @@ Use Visual Studio 2019
 
 Found the .sln file and run it.
 
+RELEASE | x64
+
 ---
 
 ## License
